@@ -22,6 +22,6 @@ func TCPProxy(srcConn net.Conn, dstAddr string) {
 	flowOutCounter := monitor.NewFlowCounter(dstConn.RemoteAddr().String())
 	go forward(srcConn, dstConn, flowOutCounter)
 
-	//flowInCounter := monitor.NewFlowCounter(srcConn.RemoteAddr().String())
-	//go forward(dstConn, srcConn, flowInCounter)
+	flowInCounter := monitor.NewFlowCounter(srcConn.RemoteAddr().String())
+	go forward(dstConn, srcConn, flowInCounter)
 }
