@@ -14,3 +14,11 @@ func sliceEqual(a, b []byte) bool {
 	}
 	return true
 }
+
+func parseDomain() {
+
+}
+
+func parseIP() {
+
+}

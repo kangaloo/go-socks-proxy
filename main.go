@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/kangaloo/go-socks-proxy/monitor"
+	"github.com/kangaloo/go-socks-proxy/proxy"
 	"log"
 	"net"
 )
@@ -26,7 +27,8 @@ func main() {
 		}
 
 		fmt.Printf("new connection from %s\n", conn.RemoteAddr())
-		go communicate(conn)
+		go proxy.SimpleForward(conn)
+		//go communicate(conn)
 	}
 }
 

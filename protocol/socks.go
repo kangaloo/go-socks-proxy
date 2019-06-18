@@ -61,6 +61,7 @@ func parseAddr(packet []byte) (string, error) {
 		return "", errors.New("can not parse packet, too short")
 	}
 
+	// 地址解析这段代码转移到 util.go 中的 parseDomain 函数中
 	var port int16
 	buf := bytes.NewBuffer(packet[len(packet)-2:])
 	err := binary.Read(buf, binary.BigEndian, &port)
@@ -74,8 +75,8 @@ func parseAddr(packet []byte) (string, error) {
 	// todo 这个位置为什么是5
 	log.Printf("addr slice: %#v", packet[5:len(packet)-2])
 
-	addr := string(packet[5:len(packet)-2])
+	addr := string(packet[5 : len(packet)-2])
 	log.Printf("get addr: %#v\n", addr)
 
-	return addr+":"+strconv.Itoa(int(port)), nil
+	return addr + ":" + strconv.Itoa(int(port)), nil
 }
