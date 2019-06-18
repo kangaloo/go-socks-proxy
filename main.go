@@ -26,7 +26,7 @@ func main() {
 			log.Println(err)
 		}
 
-		fmt.Printf("new connection from %s\n", conn.RemoteAddr())
+		log.Printf("new connection from %s\n", conn.RemoteAddr())
 		go proxy.SimpleForward(conn)
 		//go communicate(conn)
 	}
