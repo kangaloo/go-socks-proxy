@@ -51,6 +51,8 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 	addr, err := parseAddr(buf[:n])
 	log.Printf("%s, %s", conn.RemoteAddr(), addr)
 
+	_, _ = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+
 	return conn, addr, err
 }
 
