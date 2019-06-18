@@ -21,12 +21,16 @@ func forward(dst, src net.Conn, counter *monitor.Counter) {
 		n, err := src.Read(buf)
 		if err != nil {
 			log.Printf("%#v", err)
+			log.Printf("%s", err)
 			return
 		}
+
+		counter.Write(n)
 
 		_, err = dst.Write(buf[:n])
 		if err != nil {
 			log.Printf("%#v", err)
+			log.Printf("%s", err)
 			return
 		}
 	}
