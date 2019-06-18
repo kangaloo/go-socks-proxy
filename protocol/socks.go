@@ -51,6 +51,8 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 	addr, err := parseAddr(buf[:n])
 	log.Printf("%s, %s", conn.RemoteAddr(), addr)
 
+	_, _ = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
+
 	return conn, addr, err
 }
 
@@ -74,8 +76,8 @@ func parseAddr(packet []byte) (string, error) {
 	// todo 这个位置为什么是5
 	log.Printf("addr slice: %#v", packet[5:len(packet)-2])
 
-	addr := string(packet[5:len(packet)-2])
+	addr := string(packet[5 : len(packet)-2])
 	log.Printf("get addr: %#v\n", addr)
 
-	return addr+":"+strconv.Itoa(int(port)), nil
+	return addr + ":" + strconv.Itoa(int(port)), nil
 }
