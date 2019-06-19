@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"github.com/kangaloo/go-socks-proxy/protocol"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 )
 
