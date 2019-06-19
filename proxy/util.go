@@ -12,8 +12,7 @@ func forward(dst, src net.Conn, counter *monitor.Counter) {
 	defer func() {
 		// todo 只关闭一个，以解决下面的 read closed connection 问题，需要考虑关闭哪个
 		_ = dst.Close()
-		_ = src.Close()
-		//counter.Close()
+		//_ = src.Close()
 		counter.Done()
 	}()
 
