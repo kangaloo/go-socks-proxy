@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/kangaloo/go-socks-proxy/monitor"
 	"github.com/kangaloo/go-socks-proxy/proxy"
 	"log"
@@ -33,6 +32,8 @@ func main() {
 }
 
 // 每个communicate协程传入一个channel，用于写入转发的byte数，prom监控读取channel中的数据，实现统计流量
+
+/*
 func communicate(conn net.Conn) {
 	bufSize := 8
 	buf := make([]byte, bufSize)
@@ -68,3 +69,4 @@ func communicate(conn net.Conn) {
 		}
 	}
 }
+*/
