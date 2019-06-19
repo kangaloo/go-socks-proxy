@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/kangaloo/go-socks-proxy/logger"
 	"github.com/kangaloo/go-socks-proxy/monitor"
 	"github.com/kangaloo/go-socks-proxy/proxy"
 	log "github.com/sirupsen/logrus"
