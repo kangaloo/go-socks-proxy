@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"strconv"
 )
@@ -30,7 +30,7 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 		return conn, "", err
 	}
 
-	log.Printf("read protocol handshake packet %v", buf[:n])
+	log.Debug("read protocol handshake packet %v", buf[:n])
 	if !sliceEqual(socksMethodPacket, buf[:n]) {
 		return conn, "", errors.New("packet from client Unrecognized")
 	}
@@ -46,10 +46,10 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 		log.Printf("%#v", err)
 		return conn, "", err
 	}
-	log.Printf("read protocol handshake packet %v", buf[:n])
+	log.Debug("read protocol handshake packet %v", buf[:n])
 
 	addr, err := parseAddr(buf[:n])
-	log.Printf("%s, %s", conn.RemoteAddr(), addr)
+	log.Printf("srcAddr: %s, dstAddr: %s", conn.RemoteAddr(), addr)
 
 	_, _ = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 

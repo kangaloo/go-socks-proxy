@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/kangaloo/go-socks-proxy/monitor"
 	"github.com/kangaloo/go-socks-proxy/proxy"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 )
 
