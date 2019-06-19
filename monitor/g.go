@@ -11,25 +11,9 @@ import (
 // todo 修改监控项注册策略，每个源地址:目的地址对，注册一个监控项
 //  使用独立的register，不实用DefaultRegister
 
+var globalRegisterLock = &sync.Mutex{}
+
 func Prometheus() {
-	/*
-		counter := &Counter{
-			Zone: "zone",
-			Flow: prometheus.NewDesc(
-				"socks_proxy",
-				"GO-SOCKS-PROXY TOTAL FLOW",
-				[]string{"proxy"},
-				map[string]string{"zone": "zone"},
-			),
-		}
-
-		err := prometheus.Register(counter)
-		if err != nil {
-			log.Println(err)
-		}
-
-	*/
-
 	http.HandleFunc("/metrics", promhttp.Handler().ServeHTTP)
 	err := http.ListenAndServe("[::]:8080", http.DefaultServeMux)
 	log.Panic(err)
