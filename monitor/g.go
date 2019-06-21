@@ -1,10 +1,12 @@
 package monitor
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -12,6 +14,11 @@ import (
 //  使用独立的register，不实用DefaultRegister
 
 var globalRegisterLock = &sync.Mutex{}
+
+// 初始化全局collector，提供给注册失败且转换失败的collector使用
+func init() {
+
+}
 
 func Prometheus() {
 	http.HandleFunc("/metrics", promhttp.Handler().ServeHTTP)
@@ -22,6 +29,7 @@ func Prometheus() {
 type Counter struct {
 	sync.Mutex // for compute and read total concurrent
 	prometheus.Desc
+	ID          string
 	Src         string
 	Dst         string
 	FlowType    string
@@ -29,16 +37,15 @@ type Counter struct {
 	Ch          chan int
 	finished    bool
 	fresh       bool
-	invokeCount int
+	invokeCount counter
 }
 
 func (c *Counter) Add() {
-
-	c.invokeCount += 1
+	c.invokeCount.add()
 }
 
 func (c *Counter) Done() {
-	c.invokeCount -= 1
+	c.invokeCount.done()
 }
 
 func NewFlowCounter(src, dst, flow string) *Counter {
@@ -46,13 +53,14 @@ func NewFlowCounter(src, dst, flow string) *Counter {
 		Desc: *prometheus.NewDesc(
 			"SOCKS_PROXY_FLOW",
 			"SOCKS-PROXY TOTAL FLOW",
-			nil,
+			[]string{"connections"},
 			map[string]string{"SRC": src, "DST": dst, "FlowType": flow},
 		),
 		Ch:       make(chan int, 1024),
 		Src:      src,
 		Dst:      dst,
 		FlowType: flow,
+		ID: IDGenerator.Generate(),
 	}
 
 	globalRegisterLock.Lock()
@@ -104,7 +112,10 @@ func (c *Counter) Count() {
 
 func (c *Counter) UnRegister() {
 	globalRegisterLock.Lock()
-	if c.invokeCount >= 0 {
+	log.Info(c)
+
+	log.Printf("invoke count is %d", c.invokeCount)
+	if c.invokeCount.num() > 0 {
 		globalRegisterLock.Unlock()
 		return
 	}
@@ -138,6 +149,11 @@ func (c *Counter) Read() int {
 	return count
 }
 
+func (c *Counter) String() string {
+	return fmt.Sprintf("id: %s, invoke: %d, desc: %s",
+		c.ID, c.invokeCount.num(), c.Desc.String())
+}
+
 func (c *Counter) Describe(ch chan<- *prometheus.Desc) {
 	ch <- &c.Desc
 }
@@ -148,6 +164,7 @@ func (c *Counter) Collect(ch chan<- prometheus.Metric) {
 		&c.Desc,
 		prometheus.CounterValue,
 		float64(count),
+		c.invokeCount.string(),
 	)
 
 	if err != nil {
@@ -155,4 +172,29 @@ func (c *Counter) Collect(ch chan<- prometheus.Metric) {
 	}
 	ch <- counter
 	c.UnRegister()
+}
+
+type counter struct {
+	sync.Mutex
+	count int
+}
+
+func (c *counter) add() {
+	c.Lock()
+	defer c.Unlock()
+	c.count += 1
+}
+
+func (c *counter) done() {
+	c.Lock()
+	defer c.Unlock()
+	c.count -= 1
+}
+
+func (c *counter) num() int {
+	return c.count
+}
+
+func (c *counter) string() string {
+	return strconv.Itoa(c.count)
 }
