@@ -26,7 +26,7 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 	buf := make([]byte, bufSize)
 	n, err := conn.Read(buf)
 	if err != nil {
-		log.Printf("%#v", err)
+		//log.Printf("%#v", err)
 		return conn, "", err
 	}
 
@@ -37,13 +37,13 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 
 	_, err = conn.Write([]byte{0x05, 0x00})
 	if err != nil {
-		log.Printf("%#v", err)
+		//log.Printf("%#v", err)
 		return conn, "", err
 	}
 
 	n, err = conn.Read(buf)
 	if err != nil {
-		log.Printf("%#v", err)
+		//log.Printf("%#v", err)
 		return conn, "", err
 	}
 	log.Debug("read protocol handshake packet %v", buf[:n])
@@ -51,8 +51,8 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 	addr, err := parseAddr(buf[:n])
 	log.Printf("srcAddr: %s, dstAddr: %s", conn.RemoteAddr(), addr)
 
+	// todo 应该将创建转发连接的工作放在该函数内的这个位置，创建失败向客户端返回错误，才算完整实现了socks协议
 	_, _ = conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-
 	return conn, addr, err
 }
 

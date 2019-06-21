@@ -60,7 +60,7 @@ func NewFlowCounter(src, dst, flow string) *Counter {
 		Src:      src,
 		Dst:      dst,
 		FlowType: flow,
-		ID: IDGenerator.Generate(),
+		ID:       IDGenerator.Generate(),
 	}
 
 	globalRegisterLock.Lock()
@@ -107,14 +107,14 @@ func (c *Counter) Count() {
 		c.Unlock()
 	}
 	c.finished = true
-	log.Info("counter for %s exited", c.Dst)
+	log.Printf("counter for %s exited\n", c.Dst)
 }
 
 func (c *Counter) UnRegister() {
 	globalRegisterLock.Lock()
 	log.Info(c)
 
-	log.Printf("invoke count is %d", c.invokeCount)
+	log.Printf("invoke count is %s", c.invokeCount.string())
 	if c.invokeCount.num() > 0 {
 		globalRegisterLock.Unlock()
 		return

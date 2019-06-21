@@ -2,16 +2,17 @@ package proxy
 
 import (
 	"github.com/kangaloo/go-socks-proxy/monitor"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
+	"time"
 )
 
 // 在该函数中完成prometheus监控指标的注册
 func TCPProxy(srcConn net.Conn, dstAddr string) {
-	// timeout 20s
-	dstConn, err := net.Dial("tcp", dstAddr)
+	// timeout 20s, 需要变成可配置的项
+	dstConn, err := net.DialTimeout("tcp", dstAddr, time.Second*10)
 	if err != nil {
-		log.Printf("%#v", err)
+		log.WithField("request domain", dstAddr).Warn(err)
 		return
 	}
 
