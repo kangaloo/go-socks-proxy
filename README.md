@@ -1,6 +1,12 @@
 # go-socks-proxy
 go-socks-proxy是一个使用socks5协议的代理服务器
 
+## 安装
+1. go get github.com/kangaloo/go-socks-proxy
+2. cd go-socks-proxy
+3. go build
+4. ./go-socks-proxy
+
 ## 流量监控
 go-socks-proxy集成了prometheus监控，实现了以下多个视角的流量监控
 * 针对不同客户端的流量监控
