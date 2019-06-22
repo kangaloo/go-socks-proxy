@@ -8,7 +8,7 @@ go-socks-proxy是一个使用socks5协议的代理服务器
 4. ./go-socks-proxy
 
 ## 流量监控
-go-socks-proxy集成了prometheus监控，实现了以下多个视角的流量监控
+go-socks-proxy集成了prometheus监控(localhost:8080/metrics)，实现了以下多个视角的流量监控
 * 针对不同客户端的流量监控
 * 针对不同的访问站点的流量监控
 * 针对上传、下载总流量的监控
