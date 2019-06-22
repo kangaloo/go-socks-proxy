@@ -1,5 +1,5 @@
 # go-socks-proxy
-go-socks-proxy是一个使用socks5协议的代理服务器，
+go-socks-proxy是一个使用socks5协议的代理服务器
 
 ## 流量监控
 go-socks-proxy集成了prometheus监控，实现了以下多个视角的流量监控
