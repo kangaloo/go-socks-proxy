@@ -7,7 +7,14 @@ go-socks-proxy集成了prometheus监控，实现了以下多个视角的流量�
 * 针对不同的访问站点的流量监控
 * 针对上传、下载总流量的监控
 
+## 根据不同站点区分的上传流量
+![统计运行错误](https://github.com/kangaloo/go-socks-proxy/blob/f0fd303049b28bf87680aa28f4ac8923efb627ce/resource/site-upload.jpg)
 
+## 根据不同站点区分的下载流量
+![统计运行错误](https://github.com/kangaloo/go-socks-proxy/blob/f0fd303049b28bf87680aa28f4ac8923efb627ce/resource/site-download.jpg)
+
+## 上传总流量和下载总流量
+![统计运行错误](https://github.com/kangaloo/go-socks-proxy/blob/f0fd303049b28bf87680aa28f4ac8923efb627ce/resource/upload-download-total.jpg)
 
 ## 转发过程中出现的错误
 ![统计运行错误](https://github.com/kangaloo/go-socks-proxy/blob/ae01c36eb6e34c288606de87e9dfda5b199937fa/resource/failed_total.jpg)
