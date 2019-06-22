@@ -16,9 +16,7 @@ import (
 var globalRegisterLock = &sync.Mutex{}
 
 // 初始化全局collector，提供给注册失败且转换失败的collector使用
-func init() {
-
-}
+func init() {}
 
 func Prometheus() {
 	http.HandleFunc("/metrics", promhttp.Handler().ServeHTTP)
@@ -26,6 +24,7 @@ func Prometheus() {
 	log.Panic(err)
 }
 
+// Counter is a prometheus metric collector
 type Counter struct {
 	sync.Mutex // for compute and read total concurrent
 	prometheus.Desc
@@ -134,7 +133,7 @@ func (c *Counter) UnRegister() {
 
 func (c *Counter) Write(n int) {
 	c.Ch <- n
-	log.Debug("net process write %d to collector channel\n", n)
+	log.WithField("collector_id", c.ID).Debugf("net process write %d to collector channel", n)
 }
 
 func (c *Counter) Read() int {
@@ -143,17 +142,7 @@ func (c *Counter) Read() int {
 	c.TotalBytes = 0
 	c.fresh = true
 	c.Unlock()
-	log.Debug("prometheus read %d from collector", count)
-
-	/*
-		registerLock.Lock()
-		if c.finished {
-			c.UnRegister()
-		}
-
-		registerLock.Unlock()
-
-	*/
+	log.Debugf("prometheus read %d from collector", count)
 	return count
 }
 
