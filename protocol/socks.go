@@ -31,18 +31,15 @@ func (e *packetError) Error() string {
 }
 
 func Socks(conn net.Conn) (net.Conn, string, error) {
-	//defer func() {log.Printf("close connection %s: %#v", conn.RemoteAddr(), conn.Close())}()
 	bufSize := 256
 	buf := make([]byte, bufSize)
 	n, err := conn.Read(buf)
 	if err != nil {
-		//log.Printf("%#v", err)
 		return conn, "", err
 	}
 
 	log.Debug("read protocol handshake packet %v", buf[:n])
 	if !sliceEqual(socksMethodPacket, buf[:n]) {
-		//return conn, "", errors.New("packet from " + conn.RemoteAddr().String()  + " Unrecognized")
 		return conn, "", &packetError{
 			message: "packet from " + conn.RemoteAddr().String() + " Unrecognized",
 			packet:  buf[:n],
@@ -51,17 +48,15 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 
 	_, err = conn.Write([]byte{0x05, 0x00})
 	if err != nil {
-		//log.Printf("%#v", err)
 		return conn, "", err
 	}
 
 	n, err = conn.Read(buf)
 	if err != nil {
-		//log.Printf("%#v", err)
 		return conn, "", err
 	}
-	log.Debug("read protocol handshake packet %v", buf[:n])
 
+	log.Debug("read protocol handshake packet %v", buf[:n])
 	addr, err := parseAddr(buf[:n])
 	log.Printf("srcAddr: %s, dstAddr: %s", conn.RemoteAddr(), addr)
 

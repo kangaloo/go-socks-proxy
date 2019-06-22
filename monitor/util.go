@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-// id generator
-
-// todo 每次产生ID是更新seed
-//  采用md5算法生成id
 type Generator struct {
 	sync.Mutex
 	seed int
@@ -27,6 +23,7 @@ func (g *Generator) Generate() string {
 	return id
 }
 
+// IDGenerator is a global id generator
 var IDGenerator *Generator
 
 func init() {

@@ -50,7 +50,7 @@ func (c *Counter) Done() {
 func NewFlowCounter(src, dst, flow string) *Counter {
 	collector := &Counter{
 		Desc: *prometheus.NewDesc(
-			"SOCKS_PROXY_FLOW",
+			"SOCKS_PROXY_FLOW_BYTES",
 			"SOCKS-PROXY TOTAL FLOW",
 			[]string{"connections"},
 			map[string]string{"SRC": src, "DST": dst, "FlowType": flow},
@@ -76,7 +76,10 @@ func NewFlowCounter(src, dst, flow string) *Counter {
 			existErrCollector, ok := existErr.ExistingCollector.(*Counter)
 
 			if ok {
-				log.Info("convert ExistingCollector to `*Counter` successful")
+				log.WithFields(log.Fields{
+					"exist_collector_id": existErrCollector.ID,
+					"new_collector_id":   collector.ID,
+				}).Info("convert ExistingCollector to `*monitor.Counter` successfully")
 				existErrCollector.Add()
 				globalRegisterLock.Unlock()
 				log.WithField("collector_id", existErrCollector.ID).Info("new connection attached")
@@ -157,7 +160,7 @@ func (c *Counter) Describe(ch chan<- *prometheus.Desc) {
 
 func (c *Counter) Collect(ch chan<- prometheus.Metric) {
 	count := c.Read()
-	counter, err := prometheus.NewConstMetric(
+	metric, err := prometheus.NewConstMetric(
 		&c.Desc,
 		prometheus.CounterValue,
 		float64(count),
@@ -165,9 +168,10 @@ func (c *Counter) Collect(ch chan<- prometheus.Metric) {
 	)
 
 	if err != nil {
+		monitorWarn.Write(1)
 		log.Warn(err)
 	}
-	ch <- counter
+	ch <- metric
 	c.UnRegister()
 }
 

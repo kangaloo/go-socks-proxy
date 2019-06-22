@@ -4,6 +4,7 @@ import (
 	"github.com/kangaloo/go-socks-proxy/monitor"
 	log "github.com/sirupsen/logrus"
 	"net"
+	"strings"
 )
 
 // forward函数退出前需要关闭两个conn，并删除 counter
@@ -40,4 +41,12 @@ func forward(dst, src net.Conn, counter *monitor.Counter) {
 			return
 		}
 	}
+}
+
+func addrFormat(addr string) string {
+	addr = strings.Split(addr, ":")[0]
+	// todo 需要检查，如果是合法的IP，则不做处理
+	//addr = strings.Join(strings.Split(addr, ".")[1:], ".")
+	// todo 检查截断后的域名是否合法，如 github.com 截断后为 com 是不正确的
+	return addr
 }
