@@ -4,6 +4,7 @@ import (
 	"github.com/kangaloo/go-socks-proxy/monitor"
 	log "github.com/sirupsen/logrus"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -12,9 +13,14 @@ func TCPProxy(srcConn net.Conn, dstAddr string) {
 	// timeout 20s, 需要变成可配置的项
 	dstConn, err := net.DialTimeout("tcp", dstAddr, time.Second*10)
 	if err != nil {
-		log.WithField("request domain", dstAddr).Warn(err)
+		log.WithFields(log.Fields{
+			"request_domain": dstAddr,
+			"client_address": srcConn.RemoteAddr().String(),
+		}).Warn(err)
 		return
 	}
+
+	log.WithField("request_domain", dstAddr).Infof("create new proxy connection successfully")
 
 	// 监控指标需要更改，需要 in/out 标签，每个指标有两个连接，是否都监听
 	// 监控指标 只需要 源地址标签 和 目的地址标签 不需要端口 没有必要
@@ -22,12 +28,14 @@ func TCPProxy(srcConn net.Conn, dstAddr string) {
 
 	// SOCKS_PROXY{src=clientIP, dst=baidu.com, flow_type=inflow}
 
-	// out
-	flowOutCounter := monitor.NewFlowCounter(srcConn.RemoteAddr().String(), dstConn.RemoteAddr().String(), "->")
+	// todo 新增一个处理函数，处理域名，只取域名后缀作为DST
+
+	// in
+	flowOutCounter := monitor.NewFlowCounter(strings.Split(srcConn.RemoteAddr().String(), ":")[0], dstAddr, "download")
 	go forward(srcConn, dstConn, flowOutCounter)
 
 	// SOCKS_PROXY{src=clientIP, dst=baidu.com, flow_type=outflow}
-	// in
-	flowInCounter := monitor.NewFlowCounter(srcConn.RemoteAddr().String(), dstConn.RemoteAddr().String(), "<-")
+	// out
+	flowInCounter := monitor.NewFlowCounter(strings.Split(srcConn.RemoteAddr().String(), ":")[0], dstAddr, "upload")
 	go forward(dstConn, srcConn, flowInCounter)
 }

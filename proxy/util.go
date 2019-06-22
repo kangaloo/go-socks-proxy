@@ -2,7 +2,7 @@ package proxy
 
 import (
 	"github.com/kangaloo/go-socks-proxy/monitor"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 )
 
@@ -23,11 +23,11 @@ func forward(dst, src net.Conn, counter *monitor.Counter) {
 		// 此处的错误目前发现两种 io.EOF | read closed connection
 		n, err := src.Read(buf)
 		//log.Printf("%d bytes read, %s, %v", n, buf[:n], buf[:n])
-		log.Printf("read %d bytes from %s\n", n, src.RemoteAddr().String())
+		log.Printf("read %d bytes from %s", n, src.RemoteAddr().String())
 
 		if err != nil {
-			log.Printf("%#v", err)
-			log.Printf("read forward: %s", err)
+			//log.Printf("%#v", err)
+			log.Warn(err)
 			return
 		}
 
@@ -35,8 +35,8 @@ func forward(dst, src net.Conn, counter *monitor.Counter) {
 
 		_, err = dst.Write(buf[:n])
 		if err != nil {
-			log.Printf("%#v", err)
-			log.Printf("write forward: %s", err)
+			//log.Printf("%#v", err)
+			log.Warn(err)
 			return
 		}
 	}

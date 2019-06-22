@@ -80,6 +80,7 @@ func NewFlowCounter(src, dst, flow string) *Counter {
 				log.Info("convert ExistingCollector to `*Counter` successful")
 				existErrCollector.Add()
 				globalRegisterLock.Unlock()
+				log.WithField("collector_id", existErrCollector.ID).Info("new connection attached")
 				return existErrCollector
 			}
 		}
@@ -87,9 +88,11 @@ func NewFlowCounter(src, dst, flow string) *Counter {
 		log.Panic(err)
 	}
 
+	// todo 此处需要修改，转换失败时也会返回新的，应该返回一个全局的处理错误的collector
 	globalRegisterLock.Unlock()
 	collector.Add()
 	go collector.Count()
+	log.WithField("collector_id", collector.ID).Info("new collector created")
 	return collector
 }
 
@@ -100,27 +103,32 @@ func (c *Counter) Count() {
 			break
 		}
 
-		log.Printf("get %d from channel\n", n)
+		log.WithField("collector_id", c.ID).Infof("counter get %d from channel", n)
 		c.Lock()
 		c.fresh = false
 		c.TotalBytes += n
 		c.Unlock()
 	}
 	c.finished = true
-	log.Printf("counter for %s exited\n", c.Dst)
+	log.Infof("count goroutine for %s exited", c.ID)
 }
 
 func (c *Counter) UnRegister() {
 	globalRegisterLock.Lock()
-	log.Info(c)
+	log.Debug(c)
 
-	log.Printf("invoke count is %s", c.invokeCount.string())
+	log.WithField("collector_id", c.ID).Infof("collector invoke count is %s", c.invokeCount.string())
 	if c.invokeCount.num() > 0 {
 		globalRegisterLock.Unlock()
 		return
 	}
 	close(c.Ch)
-	log.Printf("UnRegister metric successfully: %v", prometheus.Unregister(c))
+
+	if prometheus.Unregister(c) {
+		log.WithField("collector_id", c.ID).Info("UnRegister collector successfully")
+	} else {
+		log.WithField("collector_id", c.ID).Warn("UnRegister collector failed")
+	}
 	globalRegisterLock.Unlock()
 }
 

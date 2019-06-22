@@ -8,7 +8,7 @@ import (
 
 var server net.Listener
 
-func init()  {
+func init() {
 	var err error
 	server, err = net.Listen("tcp", "[::]:1081")
 	if err != nil {
@@ -27,7 +27,7 @@ func TestSocks(t *testing.T) {
 		t.Error(err)
 	}
 
-	proxyConn, err := net.DialTimeout("tcp", addr, time.Second * 15)
+	proxyConn, err := net.DialTimeout("tcp", addr, time.Second*15)
 	if err != nil {
 		t.Error(err)
 		return

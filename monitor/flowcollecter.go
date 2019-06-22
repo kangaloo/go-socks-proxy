@@ -1,10 +1,6 @@
 package monitor
 
-import (
-	log "github.com/sirupsen/logrus"
-	"sync"
-)
-
+/*
 // 改用channel，实现无锁操作
 type FlowCollector struct {
 	sync.Mutex
@@ -41,3 +37,5 @@ var FlowCounter = &FlowCollector{Ch: make(chan int, 1024)}
 func init() {
 	go FlowCounter.Count()
 }
+
+*/

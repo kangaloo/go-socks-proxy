@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"strconv"
@@ -20,6 +21,15 @@ var (
 	socksMethodPacket = []byte{0x05, 0x01, 0x00}
 )
 
+type packetError struct {
+	message string
+	packet  []byte
+}
+
+func (e *packetError) Error() string {
+	return fmt.Sprintf("%s, packet: %v", e.message, e.packet)
+}
+
 func Socks(conn net.Conn) (net.Conn, string, error) {
 	//defer func() {log.Printf("close connection %s: %#v", conn.RemoteAddr(), conn.Close())}()
 	bufSize := 256
@@ -32,7 +42,11 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 
 	log.Debug("read protocol handshake packet %v", buf[:n])
 	if !sliceEqual(socksMethodPacket, buf[:n]) {
-		return conn, "", errors.New("packet from client Unrecognized")
+		//return conn, "", errors.New("packet from " + conn.RemoteAddr().String()  + " Unrecognized")
+		return conn, "", &packetError{
+			message: "packet from " + conn.RemoteAddr().String() + " Unrecognized",
+			packet:  buf[:n],
+		}
 	}
 
 	_, err = conn.Write([]byte{0x05, 0x00})

@@ -1,6 +1,8 @@
 package monitor
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"strconv"
 	"sync"
 	"time"
@@ -18,7 +20,10 @@ type Generator struct {
 func (g *Generator) Generate() string {
 	g.Lock()
 	defer g.Unlock()
-	id := strconv.Itoa(int(time.Now().UnixNano()))
+	g.seed += 1
+	h := md5.New()
+	h.Write([]byte(strconv.Itoa(int(time.Now().UnixNano()))))
+	id := hex.EncodeToString(h.Sum([]byte(strconv.Itoa(g.seed))))
 	return id
 }
 
