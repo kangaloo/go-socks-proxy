@@ -1,4 +1,4 @@
 
 
 
-![统计运行错误](https://github-images.oss-cn-beijing.aliyuncs.com/failed.jpg)
+![统计运行错误](https://github.com/kangaloo/go-socks-proxy/blob/ae01c36eb6e34c288606de87e9dfda5b199937fa/resource/failed_total.jpg)
