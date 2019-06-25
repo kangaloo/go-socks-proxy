@@ -68,7 +68,7 @@ func Socks(conn net.Conn) (net.Conn, string, error) {
 // todo 该函数仅支持域名，需要补充IP地址的parser和UDP的parser
 func parseAddr(packet []byte) (string, error) {
 	// IPv4 4 bytes, port 2 bytes, socks 4 bytes
-	if len(packet) < 9 {
+	if len(packet) < 10 {
 		return "", errors.New("can not parse packet, too short")
 	}
 
@@ -81,9 +81,9 @@ func parseAddr(packet []byte) (string, error) {
 		return "", err
 	}
 
-	log.Printf("parse port from packet: %d", port)
+	log.WithField("port", port).Info("parse port from packet success")
 
-	// todo 这个位置为什么是5
+	// 这个位置为什么是5 VER 1, CMD 1, RSV 1, ATYP 1, 地址的第一位是domain长度
 	log.Printf("addr slice: %#v", packet[5:len(packet)-2])
 
 	addr := string(packet[5 : len(packet)-2])

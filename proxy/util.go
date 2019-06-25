@@ -5,39 +5,44 @@ import (
 	log "github.com/sirupsen/logrus"
 	"net"
 	"strings"
+	"sync"
 )
 
 // forward函数退出前需要关闭两个conn，并删除 counter
-func forward(dst, src net.Conn, counter *monitor.Counter) {
+func forward(id string, gw *sync.WaitGroup, dst, src net.Conn, counter *monitor.Counter) {
+
+	fields := log.Fields{
+		"proxies_id": id,
+		"conn":       src.RemoteAddr().String() + "->" + dst.RemoteAddr().String(),
+	}
 
 	defer func() {
 		// todo 只关闭一个，以解决下面的 read closed connection 问题，需要考虑关闭哪个
-		_ = dst.Close()
-		//_ = src.Close()
+		//_ = dst.Close()
+		log.WithFields(fields).Info(src.Close())
 		counter.Done()
+		gw.Done()
 	}()
 
 	buf := make([]byte, bufSize)
 
 	for {
-
 		// 此处的错误目前发现两种 io.EOF | read closed connection
+		// 修改后应该不会在出现read closed connection
 		n, err := src.Read(buf)
 		//log.Printf("%d bytes read, %s, %v", n, buf[:n], buf[:n])
-		log.Printf("read %d bytes from %s", n, src.RemoteAddr().String())
 
 		if err != nil {
-			//log.Printf("%#v", err)
-			log.Warn(err)
+			log.WithField("proxies_id", id).Warn(err)
 			return
 		}
 
-		counter.Write(n)
+		log.WithFields(fields).Printf("read %d bytes from %s", n, src.RemoteAddr().String())
 
+		counter.Write(n)
 		_, err = dst.Write(buf[:n])
 		if err != nil {
-			//log.Printf("%#v", err)
-			log.Warn(err)
+			log.WithFields(fields).Warn(err)
 			return
 		}
 	}
