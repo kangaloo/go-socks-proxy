@@ -32,8 +32,9 @@ func forward(id string, gw *sync.WaitGroup, dst, src net.Conn, counter *monitor.
 		n, err := src.Read(buf)
 		//log.Printf("%d bytes read, %s, %v", n, buf[:n], buf[:n])
 
+		// 新出现的错误 `read tcp 10.0.0.73:1080->111.164.175.28:53368: read: connection reset by peer`
 		if err != nil {
-			log.WithField("proxies_id", id).Warn(err)
+			log.WithFields(fields).Warn(err)
 			return
 		}
 

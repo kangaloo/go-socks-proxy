@@ -3,6 +3,8 @@ package config
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"io"
+	"os"
 )
 
 func init() {
@@ -13,7 +15,7 @@ func init() {
 func getConfig() {
 	// name of config file (without extension)
 	viper.SetConfigName("config")
-	viper.AddConfigPath("./conf/")
+	viper.AddConfigPath("/root/GoProjects/go-socks-proxy/conf")
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
 	}
@@ -26,14 +28,32 @@ type Config struct {
 // DisableColors和FullTimestamp字段，
 // 只用在logger.out 为stderr是才生效
 type LogConfig struct {
-	Format        string
+	Writer        io.Writer
+	Format        *logrus.TextFormatter
 	Level         logrus.Level
+	Caller        bool
 	DisableColors bool
 	FullTimestamp bool
 }
 
 func GetLogConfig() *LogConfig {
-	return &LogConfig{}
+	config := &LogConfig{
+		Format: &logrus.TextFormatter{
+			ForceColors: false,
+		},
+		Level:  logrus.InfoLevel,
+		Caller: true,
+	}
+
+	// todo 没有log目录时自动创建
+	f, err := os.Create("/root/GoProjects/go-socks-proxy/logger/log/socks-proxy.log")
+	if err != nil {
+		config.Writer = os.Stdout
+	}
+
+	w := io.MultiWriter(os.Stdout, f)
+	config.Writer = w
+	return config
 }
 
 /*

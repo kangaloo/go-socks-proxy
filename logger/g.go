@@ -1,14 +1,16 @@
 package logger
 
-import log "github.com/sirupsen/logrus"
+import (
+	"github.com/kangaloo/go-socks-proxy/config"
+	log "github.com/sirupsen/logrus"
+)
 
 func init() {
-	log.SetLevel(log.InfoLevel)
-	log.SetFormatter(&log.TextFormatter{
-		ForceColors: false,
-	})
-
-	log.SetReportCaller(true)
+	conf := config.GetLogConfig()
+	log.SetLevel(conf.Level)
+	log.SetFormatter(conf.Format)
+	log.SetReportCaller(conf.Caller)
+	log.SetOutput(conf.Writer)
 }
 
 /*
