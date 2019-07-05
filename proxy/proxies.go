@@ -22,22 +22,16 @@ type Proxies struct {
 	gw                *sync.WaitGroup
 }
 
-func NewProxies(src net.Conn, dst string) (*Proxies, error) {
+func NewProxies(src net.Conn, dst net.Conn) (*Proxies, error) {
 	p := &Proxies{
 		id:          generator.Generate(),
 		src:         src,
+		dst:         dst,
 		bufSize:     1024,
 		dialTimeout: time.Second * 10, // will read from config
 		gw:          &sync.WaitGroup{},
 	}
 
-	dstConn, err := net.DialTimeout("tcp", dst, p.dialTimeout)
-	if err != nil {
-		return nil, err
-	}
-
-	log.WithField("request_domain", dst).Infof("create new proxy destination connection successfully")
-	p.dst = dstConn
 	p.uploadCollector = monitor.NewFlowCounter(p.src.RemoteAddr().String(), p.dst.RemoteAddr().String(), "upload")
 	p.downloadCollector = monitor.NewFlowCounter(p.src.RemoteAddr().String(), p.dst.RemoteAddr().String(), "download")
 	return p, nil

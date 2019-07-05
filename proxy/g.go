@@ -10,7 +10,7 @@ import (
 var bufSize = 1024
 
 func SimpleForward(conn net.Conn) {
-	conn, addr, err := protocol.Socks(conn)
+	conn, dst, err := protocol.Socks(conn)
 	if err != nil {
 		// 记录一条socks protocol包出现的错误
 		monitor.SocksErr.Write(1)
@@ -19,16 +19,16 @@ func SimpleForward(conn net.Conn) {
 		return
 	}
 
-	proxies, err := NewProxies(conn, addr)
+	proxies, err := NewProxies(conn, dst)
 	if err != nil {
 		monitor.DialErr.Write(1) // write to error collector
 		log.WithFields(log.Fields{
-			"request_domain": addr,
+			"request_domain": dst.RemoteAddr(),
 			"client_address": conn.RemoteAddr().String(),
 		}).Warn(err)
 		return
 	}
 
-	log.WithField("request_domain", addr).Infof("create new proxy connection successfully")
+	log.WithField("request_domain", dst.RemoteAddr()).Infof("create new proxy connection successfully")
 	proxies.Run()
 }
