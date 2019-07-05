@@ -9,7 +9,7 @@ import (
 )
 
 // 生成返回给客户端的包
-func genPacket(method byte) []byte {
+func genResp(method byte) []byte {
 	return []byte{0x05, method}
 }
 

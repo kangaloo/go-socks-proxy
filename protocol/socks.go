@@ -1,23 +1,10 @@
 package protocol
 
 import (
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"time"
 )
-
-// proxy函数需要访问destAddr，并将返回的数据写入Socks返回的conn，
-// 中间过程中加入流量监控
-
-type packetError struct {
-	message string
-	packet  []byte
-}
-
-func (e *packetError) Error() string {
-	return fmt.Sprintf("%s, packet: %v", e.message, e.packet)
-}
 
 // Socks
 func Socks(conn net.Conn) (net.Conn, net.Conn, error) {
@@ -32,11 +19,11 @@ func Socks(conn net.Conn) (net.Conn, net.Conn, error) {
 	method, err := consultMethod(packet)
 	if err != nil {
 		// send method not supported to client
-		_, _ = conn.Write(genPacket(method))
+		_, _ = conn.Write(genResp(method))
 		return conn, nil, err
 	}
 
-	_, err = conn.Write(genPacket(method))
+	_, err = conn.Write(genResp(method))
 	if err != nil {
 		return conn, nil, err
 	}
