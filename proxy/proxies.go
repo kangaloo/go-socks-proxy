@@ -22,7 +22,7 @@ type Proxies struct {
 	gw                *sync.WaitGroup
 }
 
-func NewProxies(src net.Conn, dst net.Conn) (*Proxies, error) {
+func NewProxies(src net.Conn, dst net.Conn) *Proxies {
 	p := &Proxies{
 		id:          generator.Generate(),
 		src:         src,
@@ -34,7 +34,7 @@ func NewProxies(src net.Conn, dst net.Conn) (*Proxies, error) {
 
 	p.uploadCollector = monitor.NewFlowCounter(p.src.RemoteAddr().String(), p.dst.RemoteAddr().String(), "upload")
 	p.downloadCollector = monitor.NewFlowCounter(p.src.RemoteAddr().String(), p.dst.RemoteAddr().String(), "download")
-	return p, nil
+	return p
 }
 
 func (p *Proxies) Run() {

@@ -19,16 +19,7 @@ func SimpleForward(conn net.Conn) {
 		return
 	}
 
-	proxies, err := NewProxies(conn, dst)
-	if err != nil {
-		monitor.DialErr.Write(1) // write to error collector
-		log.WithFields(log.Fields{
-			"request_domain": dst.RemoteAddr(),
-			"client_address": conn.RemoteAddr().String(),
-		}).Warn(err)
-		return
-	}
-
+	proxies := NewProxies(conn, dst)
 	log.WithField("request_domain", dst.RemoteAddr()).Infof("create new proxy connection successfully")
 	proxies.Run()
 }
